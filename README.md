@@ -4,7 +4,7 @@ Drought-Agriculture: 干旱预测模型
 
 ## 项目特色
 
-✅ **多模型支持**：集成12种先进模型，包括LSTM、BiLSTM、TCN、MLP、CNN、ConvLSTM、CNNTransformer、DARNN、AttnRNN、AttnLSTM、STALSTM、STGNN
+✅ **多模型支持**：集成12种先进模型，包括LSTM、BiLSTM、TCN、MLP、CNN、ConvLSTM、CNNTransformer、DARNN、AttnRNN、AttnLSTM、FAELSTM、STGNN（开发中）
 ✅ **时空建模**：支持纯时间序列、纯空间卷积、时空注意力、时空图神经网络等多种建模方式
 ✅ **完整数据流水线**：从原始NetCDF数据加载、预处理、归一化到模型训练和评估
 ✅ **全面评估指标**：R²、KGE、NSE、RMSE、ubRMSE、Bias、PCC、RV、FHV、FLV等10+种评估指标
@@ -25,8 +25,8 @@ Drought-Agriculture: 干旱预测模型
 - **CNNTransformer**: CNN与Transformer结合
 
 ### 3. 时空模型 (Spatio-Temporal Models)
-- **STALSTM**: 时空注意力LSTM（FAELSTM）
-- **STGNN**: 时空图神经网络，动态图构建 + 图卷积 + 时间注意力
+- **FAELSTM**: 特征与时间注意力提取LSTM（Feature and Temporal Attention Extraction LSTM），基于双向LSTM的改进架构
+- **STGNN**: 时空图神经网络，动态图构建 + 图卷积 + 时间注意力(持续更新)
 
 ## 数据处理流程
 
@@ -47,14 +47,14 @@ Drought-Agriculture: 干旱预测模型
 ### 环境要求
 
 ```bash
-Python 3.8+
-PyTorch 1.10+
-PyTorch Geometric 2.0+
-Xarray 0.20+
-GeoPandas 0.12+
-Basemap 1.3+
+Python 3.8.15
+PyTorch 1.12.1
+PyTorch Geometric 2.2.0
+Xarray 2022.11.0
+GeoPandas 0.13.2
+Basemap 1.4.0
 ```
-
+其他具体环境查看conda_packages.txt文件
 ### 安装依赖
 
 ```bash
@@ -67,7 +67,7 @@ pip install -r requirements.txt
 2. **配置参数**: 修改`config.py`中的路径和超参数
 3. **运行训练**: 
    ```bash
-   python main.py --modelname STALSTM --spatial_resolution 1 --seq_len 7
+   python main.py --modelname FAELSTM --spatial_resolution 0.5 --seq_len 30
    ```
 4. **运行评估**: 
    ```bash
@@ -82,8 +82,8 @@ pip install -r requirements.txt
 
 | 参数 | 默认值 | 描述 |
 |------|--------|------|
-| `--modelname` | `STALSTM` | 模型类型: LSTM, BiLSTM, TCN, MLP, CNN, ConvLSTM, CNNTransformer, DARNN, AttnRNN, AttnLSTM, STALSTM, STGNN |
-| `--spatial_resolution` | `1.0` | 空间分辨率（度） |
+| `--modelname` | `FAELSTM` | 模型类型: LSTM, BiLSTM, TCN, MLP, CNN, ConvLSTM, CNNTransformer, DARNN, AttnRNN, AttnLSTM, FAELSTM, STGNN（开发中） |
+| `--spatial_resolution` | `0.5` | 空间分辨率（度） |
 | `--seq_len` | `7` | 输入序列长度 |
 | `--forecast_time` | `0` | 预测提前期（0=1天，6=7天） |
 | `--normalize_type` | `region` | 归一化方式: `global` 或 `region` |
@@ -125,15 +125,17 @@ pip install -r requirements.txt
 ```
 
 ## 注意事项
-代码中有正在开发功能，后续会持续更新，但不会影响目前使用，自主分辨
+- 代码中有正在开发功能（如STGNN模块），后续会持续更新，但不会影响当前使用，自主分辨
+- 根据论文研究，推荐使用FAELSTM模型，其在1天和7天预测中均表现最优
+- 数据空间分辨率为0.5°，符合ERA5-Land数据标准
 
 ## 运行示例
 
 ```bash
-# 训练STALSTM模型（1天预测）
-python main.py --modelname STALSTM --forecast_time 0
+# 训练FAELSTM模型（1天预测）
+python main.py --modelname FAELSTM --forecast_time 0
 
-# 训练STGNN模型（7天预测）
+# 训练STGNN模型（7天预测，开发中）
 python main.py --modelname STGNN --forecast_time 6
 
 # 生成性能对比表格
